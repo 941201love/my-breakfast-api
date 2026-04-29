@@ -156,8 +156,15 @@ export class PgStore implements Store {
   }
 
   getCurrentOrderByUserId(userId: string): Order | undefined {
-    return this.orders.find(
+    const pendingOrders = this.orders.filter(
       (o) => o.userId === userId && o.status === "pending",
+    );
+
+    if (pendingOrders.length === 0) return undefined;
+
+    // 取最新 pending（id 越大越新），避免使用到舊的空購物車訂單。
+    return pendingOrders.reduce((latest, current) =>
+      current.id > latest.id ? current : latest,
     );
   }
 
@@ -172,6 +179,11 @@ export class PgStore implements Store {
   }
 
   async createOrder(input: { userId: string }): Promise<Order> {
+    const existingOrder = this.getCurrentOrderByUserId(input.userId);
+    if (existingOrder) {
+      return existingOrder;
+    }
+
     const createdAt = new Date();
 
     const [inserted] = await db
