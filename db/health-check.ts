@@ -29,6 +29,22 @@ async function checkConnection(label: string, connectionString: string) {
   }
 }
 
+function assertPostgresUrl(label: string, value: string) {
+  let parsed: URL;
+
+  try {
+    parsed = new URL(value);
+  } catch {
+    throw new Error(`${label} must be a valid PostgreSQL connection URL.`);
+  }
+
+  if (!["postgres:", "postgresql:"].includes(parsed.protocol)) {
+    throw new Error(
+      `${label} must start with postgres:// or postgresql://. Received protocol: ${parsed.protocol}`,
+    );
+  }
+}
+
 async function main() {
   const storeDriver = process.env.STORE_DRIVER;
   const databaseUrl = process.env.DATABASE_URL;
@@ -47,6 +63,9 @@ async function main() {
   if (!migrationUrl) {
     throw new Error("DATABASE_URL_MIGRATION is missing.");
   }
+
+  assertPostgresUrl("DATABASE_URL", databaseUrl);
+  assertPostgresUrl("DATABASE_URL_MIGRATION", migrationUrl);
 
   console.log("Neon connection check:");
   console.log(`STORE_DRIVER: ${storeDriver}`);
