@@ -122,7 +122,7 @@ bun run build
 
 ## Render 部署（舊 V8 namespace 改造版）
 
-若要在 Render 部署「舊 V8 namespace 改造版」，請確認啟動入口是 `backend.v8.ts`，而不是預設 `backend.ts`。
+目前預設的 `bun run start` 會部署「舊 V8 namespace 改造版」，啟動時會先建立 V8 schema，再啟動 `backend.v8.ts`。
 
 建議設定：
 
@@ -135,10 +135,10 @@ bun install && bun run build
 2. Start Command（最小可行）
 
 ```bash
-bun backend.v8.ts
+bun run start
 ```
 
-3. Start Command（較保險，會先建立 namespace 資料表）
+3. Start Command（等同目前 `bun run start`，會先建立 namespace 資料表）
 
 ```bash
 bun run v8:db:setup && bun backend.v8.ts
@@ -150,7 +150,7 @@ bun run v8:db:setup && bun backend.v8.ts
 - `PORT`：由 Render 自動注入
 - `V8_DB_SCHEMA`：可不設定（預設 `v8_legacy`），建議明確設為 `v8_legacy`
 
-補充：若 Render 仍使用 `bun run start`（對應 `dist/backend.js`），實際會跑 `backend.ts`，不會進入舊 V8 改造入口。
+補充：若需要暫時回到主線 `backend.ts`，可改用 `bun run start:main`。
 
 ## 前端獨立部署
 
