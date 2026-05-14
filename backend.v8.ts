@@ -13,10 +13,41 @@ function toOrderResponse(order: Order): OrderResponse {
 }
 
 const port = parseInt(process.env.PORT || "3010", 10);
-const host = process.env.HOST || "localhost";
+const host = process.env.HOST || "0.0.0.0";
 const allowedOrigin = process.env.API_ALLOWED_ORIGIN || "*";
-const hasPublicAssets =
-  existsSync("./public") && existsSync("./public/index.html");
+const publicDir = new URL("./public", import.meta.url);
+const publicIndex = new URL("./public/index.html", import.meta.url);
+const hasPublicAssets = existsSync(publicDir) && existsSync(publicIndex);
+
+function maskDatabaseUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    parsed.password = "***";
+    if (parsed.username) {
+      return `${parsed.protocol}//***:***@${parsed.host}${parsed.pathname}${parsed.search}`;
+    }
+
+    return `${parsed.protocol}//${parsed.host}${parsed.pathname}${parsed.search}`;
+  } catch {
+    return "<invalid DATABASE_URL>";
+  }
+}
+
+const databaseUrl = process.env.DATABASE_URL;
+const v8DbSchema = process.env.V8_DB_SCHEMA?.trim();
+
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL is required for V8 Legacy runtime.");
+}
+
+if (!v8DbSchema) {
+  throw new Error(
+    "V8_DB_SCHEMA is required for V8 Legacy runtime. Set V8_DB_SCHEMA=bf_v8 or V8_DB_SCHEMA=v8_legacy.",
+  );
+}
+
+console.log(`🔌 DATABASE_URL: ${maskDatabaseUrl(databaseUrl)}`);
+console.log(`🗂️ V8_DB_SCHEMA: ${v8DbSchema}`);
 
 const store = createStoreV8();
 
@@ -56,7 +87,7 @@ const app = new Elysia();
 if (hasPublicAssets) {
   app.use(
     staticPlugin({
-      assets: "public",
+      assets: publicDir.pathname,
       prefix: "",
     }),
   );
@@ -274,18 +305,16 @@ app.post(
 app.get("/health", () => ({ status: "ok", mode: "v8-legacy" }));
 
 if (hasPublicAssets) {
-  app.get("/", () => Bun.file("./public/index.html"));
+  app.get("/", () => Bun.file(publicIndex));
 }
 
 await store.init();
 
-app.listen(port, () => {
-  console.log(`🍳 V8 Legacy API 運行在 http://${host}:${port}`);
-  console.log(
-    `🗂️ PostgreSQL schema: ${process.env.V8_DB_SCHEMA || "v8_legacy"}`,
-  );
-  console.log(`📋 菜單 API: http://${host}:${port}/api/menu`);
-  console.log(`📦 訂單 API: http://${host}:${port}/api/orders`);
-  console.log(`💚 健康檢查: http://${host}:${port}/health`);
-  console.log(`🔐 CORS Origin: ${allowedOrigin}`);
-});
+await app.listen({ port, hostname: host });
+
+console.log(`🍳 V8 Legacy API 運行在 http://${host}:${port}`);
+console.log(`🗂️ PostgreSQL schema: ${v8DbSchema}`);
+console.log(`📋 菜單 API: http://${host}:${port}/api/menu`);
+console.log(`📦 訂單 API: http://${host}:${port}/api/orders`);
+console.log(`💚 健康檢查: http://${host}:${port}/health`);
+console.log(`🔐 CORS Origin: ${allowedOrigin}`);
