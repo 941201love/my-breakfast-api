@@ -2,7 +2,7 @@ import { Elysia } from "elysia";
 import { z } from "zod";
 import { openapi } from "@elysiajs/openapi";
 import { staticPlugin } from "@elysiajs/static";
-import { existsSync } from "fs";
+import { existsSync } from "bun:fs";
 import { menuItemSchema, orderItemSchema } from "./shared/contracts.ts";
 import {
   orderResponseSchema,
