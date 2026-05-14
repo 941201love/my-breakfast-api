@@ -109,6 +109,14 @@
       "category": "飲料",
       "description": "義式濃縮搭配蒸煮鮮奶，奶泡綿密，適合作為慢慢享用的早晨飲品。",
       "image_url": "/imgs/menu/hot-latte.webp"
+    },
+    {
+      "id": 13,
+      "name": "熱拿鐵咖啡",
+      "price": 65,
+      "category": "飲料",
+      "description": "使用義式濃縮搭配蒸煮鮮奶，奶泡綿密。",
+      "image_url": "/imgs/menu/hot-latte.webp"
     }
   ],
   "orders": [
@@ -316,6 +324,6 @@
     }
   ],
   "userIdCounter": 2,
-  "menuIdCounter": 12,
+  "menuIdCounter": 13,
   "orderIdCounter": 5
 }
