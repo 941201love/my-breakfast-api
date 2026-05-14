@@ -7,7 +7,6 @@
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
-    "types": ["bun"],
 
     // Bundler mode
     "moduleResolution": "bundler",
@@ -16,6 +15,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "noEmit": true,
+    "types": ["bun", "node"],
 
     // Best practices
     "strict": true,
@@ -33,6 +33,7 @@
     "./*.ts",
     "./*.tsx",
     "./shared/**/*.ts",
+    "./scripts/**/*.ts",
     "00_teaching/index_05.ts",
     "00_teaching/index_06.ts",
     "00_teaching/index_01.ts",
